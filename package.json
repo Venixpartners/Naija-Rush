@@ -1,0 +1,25 @@
+{
+  "name": "naija-rush",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @naijarush/web dev",
+    "build": "pnpm --filter @naijarush/web build",
+    "start": "pnpm --filter @naijarush/web start",
+    "db:migrate": "pnpm --filter @venix/database migrate",
+    "db:seed": "pnpm --filter @venix/database seed",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:e2e": "tsx scripts/e2e.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "postgres": "^3.4.9",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
