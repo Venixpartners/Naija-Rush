@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Throwaway values for CI only. Real secrets live in Vercel.
+      PG: postgres://postgres:postgres@localhost:5432
+      RUN_TOKEN_SECRET: ci-run-token-secret-not-for-production-0123456789
+      IP_HASH_SALT: ci-ip-hash-salt-not-for-production-0123456789
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      ADMIN_USERS: ciadmin:ci-admin-password-123:admin
+      MAIL_PROVIDER: log
+      PAYSTACK_SECRET_KEY: sk_test_ci_placeholder_not_real
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Create databases
+        run: |
+          psql "$PG/postgres" -c "create database naija_rush"
+          psql "$PG/postgres" -c "create database naija_rush_test"
+      - name: Migrate
+        run: |
+          DATABASE_URL="$PG/naija_rush" pnpm db:migrate
+          DATABASE_URL="$PG/naija_rush_test" pnpm db:migrate
+
+      - run: pnpm typecheck
+      - name: Unit and integration tests
+        run: TEST_DATABASE_URL="$PG/naija_rush_test" pnpm test
+
+      - name: Build
+        run: DATABASE_URL="$PG/naija_rush" pnpm build
+      - name: End to end
+        run: |
+          export DATABASE_URL="$PG/naija_rush"
+          pnpm start > next.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3001/api/health > /dev/null && break; sleep 1; done
+          pnpm test:e2e
+      - name: Server log on failure
+        if: failure()
+        run: tail -200 next.log || true

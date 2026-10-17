@@ -8,6 +8,7 @@
 | `NEXT_PUBLIC_SITE_URL` | Your chosen domain, for example `https://naijarush.venixpartners.com` | Correct links on share cards |
 | `RUN_TOKEN_SECRET` | `openssl rand -base64 48` | Run tokens. The app refuses to start in production without it. |
 | `IP_HASH_SALT` | `openssl rand -base64 48` | Rate limiting. Same rule. |
+| `CRON_SECRET` | `openssl rand -base64 48`. Vercel sends it to the daily retention job automatically | Data retention job |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Choose them. Password at least 12 characters. | `/admin` |
 | `ADMIN_USERS` | `name:password:role` entries separated by commas; roles are admin, moderator, finance; passwords at least 12 characters | `/admin` (the older `ADMIN_USER` and `ADMIN_PASSWORD` pair still works as a single admin) |
 | `MAIL_PROVIDER`, `RESEND_API_KEY`, `MAIL_FROM` | `resend` plus a Resend API key and a verified sender, for sign in emails. Without them, accounts show "coming soon". | Accounts |
