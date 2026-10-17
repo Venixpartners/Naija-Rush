@@ -13,7 +13,6 @@ Live preview: https://naija-rush.vercel.app (deployed 17 Oct 2026 from `main`; e
 - [ ] Play a full run on a real affordable Android phone and an iPhone; send a challenge through WhatsApp, Snapchat, Instagram and TikTok and check each preview and link.
 - [ ] Custom domain in Vercel, then update `NEXT_PUBLIC_SITE_URL` and redeploy.
 - [ ] Legal review of the draft terms, privacy notice and community rules (NDPA 2023, FCCPC, ARCON).
-- [ ] Reset the database password once more and update it in both Vercel projects (it passed through setup screens).
 - [ ] Admin login works at /admin; store the password in a password manager.
 
 ## To switch on later
