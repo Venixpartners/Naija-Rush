@@ -18,4 +18,4 @@
 - Ad network choice, and legal review of the draft terms and privacy notice.
 
 ## Next
-Production readiness: CI, data retention job, runbooks and launch checklist.
+Real device testing, custom domain and legal review, then switch on email, payments and ads as their accounts are ready. See LAUNCH_CHECKLIST.md.
