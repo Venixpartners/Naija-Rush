@@ -15,6 +15,13 @@
       "when": 1792256301126,
       "tag": "0001_naijarush_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792265708456,
+      "tag": "0002_accounts_and_billing",
+      "breakpoints": true
     }
   ]
 }

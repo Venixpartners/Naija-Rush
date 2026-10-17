@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { adminFromHeader } from "./lib/admin-auth";
 
 const GUEST_COOKIE = "nr_gid";
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -7,26 +8,6 @@ function newToken(): string {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function adminAuthorised(req: NextRequest): boolean {
-  const user = process.env.ADMIN_USER;
-  const pass = process.env.ADMIN_PASSWORD;
-  if (!user || !pass || pass.length < 12) return false; // admin disabled until configured
-  const header = req.headers.get("authorization") ?? "";
-  if (!header.startsWith("Basic ")) return false;
-  try {
-    const [u, ...rest] = atob(header.slice(6)).split(":");
-    const p = rest.join(":");
-    // Constant time comparison
-    const a = `${u}:${p}`;
-    const b = `${user}:${pass}`;
-    let diff = a.length ^ b.length;
-    for (let i = 0; i < Math.max(a.length, b.length); i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
-    return diff === 0;
-  } catch {
-    return false;
-  }
 }
 
 /**
@@ -59,8 +40,8 @@ function sameSite(req: NextRequest): boolean {
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-    if (!adminAuthorised(req)) {
+  if (pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/admin")) {
+    if (!adminFromHeader(req.headers.get("authorization"))) {
       return new NextResponse("Authentication required", {
         status: 401,
         headers: { "WWW-Authenticate": 'Basic realm="Naija Rush admin", charset="UTF-8"' },

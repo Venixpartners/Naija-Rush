@@ -14,6 +14,10 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
       "You may play as a guest. You agree not to use bots, scripts or modified clients. We replay and check every score and may remove runs, challenges or nicknames that break these terms.",
       "Challenge links you create are public to anyone you share them with. Do not use offensive nicknames or impersonate others.",
       "There are no paid entry competitions, wagers or chance based paid rewards on Naija Rush.",
+      "Accounts are optional and for players aged 13 and over. Purchases need someone aged 18 or over, or a parent or guardian's permission.",
+      "Premium and outfits change looks only. They never change speed, hitboxes, scores or rankings. Premium renews monthly until you cancel; you keep it until the end of the month you paid for.",
+      "Payments are processed by Paystack. If something you bought does not work, contact us within 14 days for a refund. Refunds remove the item or premium period they paid for.",
+      "Events show their rules, dates and eligibility before you play. Any prize event will publish full terms approved for Nigerian promotions law before it opens.",
     ],
   },
   privacy: {
@@ -22,7 +26,11 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
       "We set one cookie that identifies your browser as an anonymous player so you can keep your scores. We store only a scrambled (hashed) version of it.",
       "We record gameplay events (starts, finishes, taps for score checking) and share actions you take (for example, choosing WhatsApp). We do not read your contacts, followers or social accounts.",
       "If you choose a public nickname, it appears on your challenge link and story card. Leave it off to stay anonymous.",
-      "Tap logs used for score checks are deleted after 90 days. To request access to or deletion of your data, contact privacy@venixpartners.com (placeholder).",
+      "Input logs used for score checks are deleted after 90 days.",
+      "If you create an account we store your email address to send sign in links, and your optional handle and display name. We never store passwords.",
+      "If you buy something, Paystack handles your card details; we keep the payment reference, amount and status for our accounts, as the law requires.",
+      "Video clips of your runs are made and kept on your own device. We do not upload them.",
+      "You can download everything we hold about you, or delete it, from your account page at any time. Questions: privacy@venixpartners.com (placeholder).",
     ],
   },
   community: {

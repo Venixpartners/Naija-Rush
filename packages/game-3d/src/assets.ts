@@ -296,6 +296,8 @@ export interface CharacterLook {
   shoes: string;
   hat: string;
   hatStyle: "cap" | "gele" | "beanie";
+  /** Product that unlocks this outfit; undefined means free. Looks only. */
+  product?: string;
 }
 
 /** Three original runners. Different looks, identical ability. */
@@ -303,6 +305,9 @@ export const CHARACTERS: CharacterLook[] = [
   { id: "tunde", name: "Tunde", skin: COLORS.skin1, top: COLORS.lime, bottom: COLORS.black, shoes: COLORS.white, hat: COLORS.red, hatStyle: "cap" },
   { id: "ada", name: "Ada", skin: COLORS.skin3, top: COLORS.purple, bottom: COLORS.orange, shoes: COLORS.danfo, hat: COLORS.pink, hatStyle: "gele" },
   { id: "zee", name: "Zee", skin: COLORS.skin2, top: COLORS.blue, bottom: COLORS.purple, shoes: COLORS.danfo, hat: COLORS.teal, hatStyle: "beanie" },
+  // Premium outfits: identical body, speed and hitbox. Colours only.
+  { id: "ada_owambe", name: "Owambe Ada", skin: COLORS.skin3, top: COLORS.gold, bottom: COLORS.gold, shoes: COLORS.white, hat: COLORS.danfo, hatStyle: "gele", product: "skin_owambe_ada" },
+  { id: "tunde_neon", name: "Neon Tunde", skin: COLORS.skin1, top: COLORS.teal, bottom: COLORS.pink, shoes: COLORS.lime, hat: COLORS.blue, hatStyle: "cap", product: "skin_neon_tunde" },
 ];
 
 export interface CharacterRig {

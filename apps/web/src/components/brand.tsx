@@ -24,6 +24,7 @@ export function SiteHeader() {
         <nav className="nav" aria-label="Main">
           <Link href="/play">Run</Link>
           <Link href="/leaderboards">Rankings</Link>
+          <Link href="/account">Account</Link>
         </nav>
       </div>
     </header>
@@ -36,6 +37,8 @@ export function SiteFooter() {
       <div className="wrap">
         <span>© {new Date().getFullYear()} Venix Partners Limited. Naija Rush is free to play.</span>
         <nav aria-label="Legal">
+          <Link href="/events">Events</Link>
+          <Link href="/premium">Premium</Link>
           <Link href="/legal/terms">Terms</Link>
           <Link href="/legal/privacy">Privacy</Link>
           <Link href="/legal/community">Community rules</Link>

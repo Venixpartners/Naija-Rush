@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { approveRun, clearNickname, hideRun, revokeChallenge } from "./actions";
+import { actOnReport, approveRun, clearNickname, dismissReport, hideRun, revokeChallenge } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
@@ -18,6 +18,12 @@ async function q<T extends Row>(query: ReturnType<typeof sql>) {
  * Every action is written to admin_audit_logs.
  */
 export default async function AdminPage() {
+  const reports = await q<{ id: string; target_type: string; reason: string; created_at: Date; label: string | null; n: number }>(sql`
+    select r.id, r.target_type, r.reason, r.created_at,
+      coalesce((select c.display_name || ' (' || c.code || ')' from naijarush.challenges c where c.id = r.target_id),
+               (select '@' || p.handle from naijarush.user_profiles p where p.user_id = r.target_id)) as label,
+      (select count(*)::int from naijarush.moderation_reports x where x.target_id = r.target_id and x.status = 'open') as n
+    from naijarush.moderation_reports r where r.status = 'open' order by r.created_at desc limit 30`);
   const [funnel, shares, referrals, flagged, challenges, audit] = await Promise.all([
     q<{ name: string; n: number }>(sql`
       select name, count(*)::int as n from naijarush.analytics_events
@@ -63,7 +69,7 @@ export default async function AdminPage() {
     <section className="section admin">
       <div className="wrap stack" style={{ gap: 28 }}>
         <div>
-          <span className="eyebrow">Last 7 days · <a href="/admin/attribution">Attribution</a></span>
+          <span className="eyebrow">Last 7 days · <a href="/admin/attribution">Attribution</a> · <a href="/admin/campaigns">Campaigns</a> · <a href="/admin/payments">Payments</a></span>
           <h1 style={{ fontSize: "2.2rem", margin: "6px 0 14px" }}>Operations</h1>
           <div className="kpis">
             {kpis.map(([label, value]) => (
@@ -102,6 +108,27 @@ export default async function AdminPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div>
+          <h2>Reports</h2>
+          {reports.length === 0 ? <p className="fineprint">No open reports.</p> : (
+            <table>
+              <thead><tr><th>Target</th><th>Reason</th><th>Reports</th><th /></tr></thead>
+              <tbody>
+                {reports.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.target_type}: {r.label ?? "(removed)"}</td><td>{r.reason}</td><td>{r.n}</td>
+                    <td>
+                      {r.target_type === "challenge" && <form action={actOnReport}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="action" value="clear_name" /><button>Clear name</button></form>}
+                      {r.target_type === "profile" && <><form action={actOnReport}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="action" value="hide_profile" /><button>Hide profile</button></form>{" "}<form action={actOnReport}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="action" value="ban" /><button>Ban</button></form></>}{" "}
+                      <form action={dismissReport}><input type="hidden" name="id" value={r.id} /><button>Dismiss</button></form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div>

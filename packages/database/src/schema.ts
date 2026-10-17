@@ -105,6 +105,21 @@ export const authIdentities = naijarush.table(
   (t) => [uniqueIndex("auth_identities_provider_uq").on(t.provider, t.providerSubject)],
 );
 
+/** Single use email sign in links. Only a hash of the token is stored. */
+export const loginTokens = naijarush.table(
+  "login_tokens",
+  {
+    id: id(),
+    email: text("email").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    guestSessionId: uuid("guest_session_id").references(() => guestSessions.id, { onDelete: "cascade" }),
+    expiresAt: ts("expires_at").notNull(),
+    usedAt: ts("used_at"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("login_tokens_hash_uq").on(t.tokenHash), index("login_tokens_email_idx").on(t.email, t.createdAt)],
+);
+
 /* ───────────────────────── Games and runs ───────────────────────── */
 
 export const games = naijarush.table("games", {
@@ -395,6 +410,8 @@ export const subscriptions = naijarush.table("subscriptions", {
     .references(() => products.id),
   provider: text("provider").notNull(), // paystack | carrier (future)
   providerSubscriptionCode: text("provider_subscription_code"),
+  providerEmailToken: text("provider_email_token"), // Paystack needs it to disable a subscription
+  providerCustomerCode: text("provider_customer_code"),
   status: text("status").notNull(), // active | non_renewing | cancelled | past_due
   currentPeriodEnd: ts("current_period_end"),
   createdAt: createdAt(),

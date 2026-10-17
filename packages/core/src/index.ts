@@ -5,3 +5,4 @@ export * from "./moderation";
 export * from "./games";
 export * from "./naija-rush";
 export * from "./validation-nr";
+export * from "./payments";

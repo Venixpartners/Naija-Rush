@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { after } from "next/server";
+import { ReportButton } from "@/components/account-client";
 import { ensureGuest } from "@/lib/guest";
 import { isBotUserAgent, loadActiveChallenge, recordReferral } from "@/lib/services/challenges";
 
@@ -80,6 +81,7 @@ export default async function ChallengePage({ params, searchParams }: Props) {
           <p className="fineprint" style={{ marginTop: 14 }}>
             By playing you agree to the <Link href="/legal/terms">Terms</Link> and <Link href="/legal/privacy">Privacy notice</Link>. Naija Rush is free to play.
           </p>
+          {c.displayName && <ReportButton type="challenge" code={c.code} />}
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="challenge-card-img" src={`/api/scorecard/${c.code}?format=story`} alt={`${who} scored ${c.targetScore} on ${c.gameName}`} width={360} height={640} />

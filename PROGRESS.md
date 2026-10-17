@@ -5,9 +5,15 @@
 - `naijarush` schema created in Venix Platform, hardened like the other product schemas, reference data seeded.
 - Tests: 21 unit and integration, 20 end to end checks; full play through in headless Chromium with WebGL.
 
+- Phase 4: optional accounts by email link, data export and delete, Paystack premium (₦1,000 a month) and two outfits (₦300 each) behind the `payments` flag, server verified rewarded ads, sponsored and creator events with rules shown before play, reports queue, admin roles for admin, moderator and finance.
+- Tests: 37 unit and integration, 30 end to end checks.
+
 ## Blocked on the owner
 - Database password (pooler connection string) and production secrets in Vercel.
 - Domain for `NEXT_PUBLIC_SITE_URL` (suggested: naijarush.venixpartners.com).
+- Resend account and verified sender for sign in emails.
+- Paystack account, test key, a monthly plan code, and sign off on prices.
+- Ad network choice, and legal review of the draft terms and privacy notice.
 
 ## Next
-Accounts, payments, campaigns and moderation, then production readiness.
+Production readiness: CI, data retention job, runbooks and launch checklist.

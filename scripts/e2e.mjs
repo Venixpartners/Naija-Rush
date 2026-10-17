@@ -109,6 +109,28 @@ try {
   check(evil.status === 403, "cross origin POST blocked");
   const dupe = await b.json(`/api/runs/${bFin.data.runId}/finish`, { method: "POST", body: { token: bStart.token, log: { inputs: [], endTick: 1 }, score: 0 } });
   check(dupe.status === 409, "replayed submission rejected");
+  // ── Phase 4: accounts, payments gate, webhooks, events ──
+  const before = a.cookies.get("nr_gid");
+  const reqLink = await a.json("/api/auth/request", { method: "POST", body: { email: "player@example.com", ageConfirmed: true } });
+  check(reqLink.status === 200 && typeof reqLink.data.devLink === "string", "sign in link issued (local mail mode)");
+  const token = new URL(reqLink.data.devLink).searchParams.get("token");
+  check((await a.req(`/auth/verify?token=${token}`)).status === 200, "sign in page renders without consuming the link");
+  const ver = await a.json("/api/auth/verify", { method: "POST", body: { token } });
+  check(ver.status === 200 && a.cookies.get("nr_gid") !== before, "signed in and session cookie rotated");
+  const me = await a.json("/api/me");
+  check(me.data?.signedIn === true && !me.data?.premium, "account active, not premium");
+  const reuse = await a.json("/api/auth/verify", { method: "POST", body: { token } });
+  check(reuse.status === 410, "sign in link cannot be reused");
+  const premiumHtml = await (await a.req("/premium")).text();
+  check(premiumHtml.includes("Premium is coming soon"), "premium stays closed while the payments flag is off");
+  const checkout = await a.json("/api/checkout", { method: "POST", body: { productId: "premium_monthly", adultConfirmed: true } });
+  check(checkout.status === 503, "checkout refused while payments are off");
+  const forged = await fetch(`${BASE}/api/webhooks/paystack`, { method: "POST", headers: { "content-type": "application/json", "x-paystack-signature": "0".repeat(128) }, body: JSON.stringify({ event: "charge.success", data: { id: 9, reference: "nr_x" } }) });
+  check(forged.status === 401, "forged Paystack webhook rejected");
+  check((await a.req("/events")).status === 200, "events page loads");
+  const exp = await a.req("/api/account/export");
+  check(exp.status === 200 && (exp.headers.get("content-disposition") ?? "").includes("attachment"), "data export downloads");
+
   check((await a.req("/admin")).status === 401, "admin requires authentication");
 } catch (err) {
   console.error(err);

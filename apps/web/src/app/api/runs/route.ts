@@ -19,6 +19,7 @@ export const POST = handle(async (req: Request) => {
     gameSlug: "naija-rush",
     mode: typeof body.mode === "string" ? body.mode : undefined,
     challengeCode: typeof body.challenge === "string" ? body.challenge : null,
+    campaignSlug: typeof body.campaign === "string" ? body.campaign : null,
   });
   const { seed, runId, token, mode, version, challenge } = result;
   return json({

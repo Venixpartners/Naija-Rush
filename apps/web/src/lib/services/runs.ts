@@ -13,6 +13,7 @@ import { track } from "../analytics";
 import { randomSeed, signRunToken, verifyRunToken } from "../crypto";
 import { db } from "../db";
 import { HttpError } from "../http";
+import { campaignForRun } from "./campaigns";
 import { loadActiveChallenge, type PublicChallenge } from "./challenges";
 
 /**
@@ -27,6 +28,7 @@ export interface StartRunInput {
   gameSlug: string;
   mode?: string;
   challengeCode?: string | null;
+  campaignSlug?: string | null;
 }
 
 export interface StartRunResult {
@@ -56,9 +58,13 @@ export async function startRun(input: StartRunInput): Promise<StartRunResult> {
     seed = challenge.seed;
   }
 
+  const campaignId = mode === "endless" ? null : await campaignForRun(input.campaignSlug, game.slug, input.guestId);
+  const [owner] = await db().select({ userId: schema.guestSessions.userId }).from(schema.guestSessions).where(eq(schema.guestSessions.id, input.guestId));
   const [run] = await db()
     .insert(schema.gameSessions)
     .values({
+      userId: owner?.userId ?? null,
+      campaignId,
       gameSlug: game.slug,
       gameVersion: game.version,
       mode,
@@ -156,7 +162,7 @@ export async function finishRun(input: FinishRunInput): Promise<FinishRunResult>
     select max(score) as best,
            max(score) filter (where id <> ${run.id}) as prev
     from naijarush.game_sessions
-    where guest_session_id = ${input.guestId} and game_slug = ${run.gameSlug} and status = 'valid'
+    where ${run.userId ? sql`user_id = ${run.userId}` : sql`guest_session_id = ${input.guestId}`} and game_slug = ${run.gameSlug} and status = 'valid'
       and (mode = 'endless') = ${run.mode === "endless"}
   `);
   const personalBest = Number(best?.best ?? verdict.score);
@@ -167,10 +173,10 @@ export async function finishRun(input: FinishRunInput): Promise<FinishRunResult>
     const start = periodStart("daily")!;
     const [r] = await db().execute<{ rank: number }>(sql`
       select count(*)::int + 1 as rank from (
-        select guest_session_id, max(score) as best from naijarush.game_sessions
+        select coalesce(user_id::text, guest_session_id::text) as who, max(score) as best from naijarush.game_sessions
         where game_slug = ${run.gameSlug} and status = 'valid' and not hidden and mode <> 'endless' and submitted_at >= ${start.toISOString()}
-          and guest_session_id <> ${input.guestId}
-        group by guest_session_id
+          and coalesce(user_id::text, guest_session_id::text) <> ${run.userId ?? input.guestId}
+        group by 1
       ) b where b.best > ${personalBest}
     `);
     dailyRank = Number(r?.rank ?? 1);

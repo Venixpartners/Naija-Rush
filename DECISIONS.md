@@ -29,3 +29,21 @@ A 720x1280 vertical clip of the run is recorded in the browser (MP4/H.264 where 
 
 ## N10. Identity
 Danfo yellow and black stripes and a Lagos sunset palette (indigo to pink to orange), distinct from Venix Clash's rainbow identity.
+
+## N11. Accounts by email link, optional
+No passwords to leak or reset. Links are single use, last 20 minutes, are stored only as hashes, and are consumed by a POST from a confirmation page so email scanners that prefetch links cannot burn them. Signing in attaches the current guest's runs and challenges to the account and rotates the session cookie, so an identifier known before sign in is useless after it. Accounts require a 13 plus confirmation; guests can always play. Rankings count one person once across devices.
+
+## N12. Paystack, server verified, exactly once
+Transactions are created by the server. Entitlements are granted only after the server verifies the transaction with Paystack's API (callback) or receives a webhook with a valid HMAC SHA512 signature, and only through a guarded state machine (a refunded payment can never return to success). Each webhook is recorded once by a unique key; repeats are acknowledged and ignored. Amount, currency and user are checked against our own record. Purchases need an 18 plus (or parent or guardian) confirmation. Payments run only when the `payments` flag is on and a key is configured. The provider sits behind a small interface so direct carrier billing can be added later, subject to operator and tariff approval; it is not implemented.
+
+## N13. Premium and cosmetics change looks only
+Premium outfits (Owambe Ada in gold aso ebi, Neon Tunde) reuse the same body, speed and hitbox as the free runners; only colours change. The rules engine and replay validator never see the outfit. Endless runs still never reach rankings, challenges or campaigns.
+
+## N14. Rewarded ads are server verified and capped
+The browser cannot grant a reward. Only a signed server to server callback from the ad network can (HMAC SHA256, timestamp within 10 minutes, nonce used once), once per day, for a 24 hour cosmetic. No ad network is chosen yet; the flag stays off.
+
+## N15. Campaigns show rules before play and never take money
+Sponsored and creator events have dates, rules and eligibility shown on their page before the play button, count only verified runs inside the window, and produce a sponsor report of measured numbers. Paid entry and chance based prizes are not supported; any prize needs legal review first.
+
+## N16. Admin roles from the environment
+`ADMIN_USERS` lists logins with roles (admin, moderator, finance). Finance pages and actions need finance or admin; moderation needs moderator or admin; campaigns need admin. Every privileged action is written to the audit log with the actor and role.

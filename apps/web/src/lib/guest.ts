@@ -37,3 +37,19 @@ export async function peekGuest(): Promise<string | null> {
     .limit(1);
   return rows[0]?.id ?? null;
 }
+
+/** Replace this browser's session cookie (used after sign in and sign out). */
+export async function setGuestCookie(token: string | null) {
+  const jar = await cookies();
+  if (!token) {
+    jar.delete(GUEST_COOKIE);
+    return;
+  }
+  jar.set(GUEST_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://") ?? false,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+}

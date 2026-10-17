@@ -8,8 +8,8 @@ Naija Rush was built inside the Venix Clash monorepo through the brief's Phases 
 - Challenges on the identical street, share sheet for WhatsApp, Instagram, TikTok and Snapchat, story and square cards, link previews, vertical video clips.
 - Referral attribution, leaderboards, admin console and attribution dashboard.
 
-## Next (shared with Venix Clash Phase 4 and 5)
-1. Optional accounts by email link, with guest progress carried over.
-2. Paystack in test mode with signed webhooks; premium and cosmetic runner outfits that never affect score.
-3. Sponsored street challenges with visible rules and dates; moderation; data export and deletion.
-4. CI, real device performance work on affordable Android phones, monitoring, legal review, launch checklist.
+## Done in Phase 4
+Optional accounts by email link with guest progress carried over; Paystack (test ready) with signed webhooks; premium and runner outfits that never affect score; sponsored and creator events with visible rules and dates; moderation; data export and deletion.
+
+## Next (Phase 5)
+CI, real device performance work on affordable Android phones, monitoring, legal review, launch checklist.

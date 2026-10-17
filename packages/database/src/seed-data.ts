@@ -30,7 +30,12 @@ export async function seedReferenceData(db: Db) {
   // and pricing has commercial sign off.
   await db
     .insert(products)
-    .values([{ id: "premium_monthly", kind: "subscription", name: "Naija Rush Premium", priceKobo: 100_000, active: false }])
+    .values([
+      { id: "premium_monthly", kind: "subscription", name: "Naija Rush Premium", priceKobo: 100_000, active: false },
+      // Outfits change looks only. Never speed, hitboxes or score.
+      { id: "skin_owambe_ada", kind: "cosmetic", name: "Owambe Ada (gold aso ebi)", priceKobo: 30_000, active: false },
+      { id: "skin_neon_tunde", kind: "cosmetic", name: "Neon Tunde", priceKobo: 30_000, active: false },
+    ])
     .onConflictDoNothing();
 
   await db

@@ -36,16 +36,19 @@ interface FinishInfo {
 }
 
 interface Props {
+  campaign?: string | null;
   mode: "standard" | "daily" | "endless";
   challenge: ChallengeInfo | null;
   challengeError?: string | null;
   snapEnabled: boolean;
 }
 
-const CHARACTERS = [
+const CHARACTERS: { id: string; name: string; colors: string[]; product?: string }[] = [
   { id: "tunde", name: "Tunde", colors: ["#7BE000", "#FF2E4D", "#15101C"] },
   { id: "ada", name: "Ada", colors: ["#B44DFF", "#FF3D8B", "#FF7A00"] },
   { id: "zee", name: "Zee", colors: ["#00C2FF", "#00E0B0", "#B44DFF"] },
+  { id: "ada_owambe", name: "Owambe Ada", colors: ["#FFD54A", "#FFC400", "#FFFFFF"], product: "skin_owambe_ada" },
+  { id: "tunde_neon", name: "Neon Tunde", colors: ["#00E0B0", "#FF3D8B", "#7BE000"], product: "skin_neon_tunde" },
 ];
 
 const CRASH_NAMES: Record<string, string> = {
@@ -63,7 +66,8 @@ const CRASH_NAMES: Record<string, string> = {
 const PREFS_KEY = "nr_prefs";
 const GAME_NAME = "Naija Rush";
 
-export function NrPlayClient({ mode: initialMode, challenge, challengeError, snapEnabled }: Props) {
+export function NrPlayClient({ mode: initialMode, challenge, challengeError, snapEnabled, campaign = null }: Props) {
+  const [owned, setOwned] = useState<string[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<NaijaRushGame | null>(null);
   const moduleRef = useRef<Promise<typeof import("@venix/game-3d")> | null>(null);
@@ -100,6 +104,10 @@ export function NrPlayClient({ mode: initialMode, challenge, challengeError, sna
       })
       .catch(() => {});
     setClipSupported(clipFormat() !== null);
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me: { entitlements?: string[] } | null) => setOwned(me?.entitlements ?? []))
+      .catch(() => {});
     return () => {
       gameRef.current?.destroy();
       recorderRef.current?.cancel();
@@ -157,7 +165,7 @@ export function NrPlayClient({ mode: initialMode, challenge, challengeError, sna
         if (!code) setActiveChallenge(null);
         const [mod, run] = await Promise.all([
           loadModule(),
-          postJson<RunInfo>("/api/runs", { game: "naija-rush", mode: code ? undefined : mode, challenge: code }),
+          postJson<RunInfo>("/api/runs", { game: "naija-rush", mode: code ? undefined : mode, challenge: code, campaign: code || mode === "endless" ? null : campaign }),
         ]);
         if (!mod.webglAvailable()) {
           setPhase("nowebgl");
@@ -168,7 +176,7 @@ export function NrPlayClient({ mode: initialMode, challenge, challengeError, sna
         const game = new mod.NaijaRushGame(canvasRef.current!, {
           seed: run.seed,
           mode: run.mode === "endless" ? "endless" : "short",
-          character: prefs.character,
+          character: CHARACTERS.find((c) => c.id === prefs.character && (!c.product || owned.includes(c.product)))?.id ?? "tunde",
           muted: prefs.muted,
           reducedMotion: prefs.reducedMotion,
           quality: prefs.lowQuality ? "low" : "auto",
@@ -208,7 +216,7 @@ export function NrPlayClient({ mode: initialMode, challenge, challengeError, sna
         setPhase("error");
       }
     },
-    [activeChallenge, loadModule, mode, prefs, submit],
+    [activeChallenge, loadModule, mode, prefs, submit, owned, campaign],
   );
 
   const press = (a: "L" | "R" | "J" | "S") => (e: React.PointerEvent) => {
@@ -318,18 +326,29 @@ export function NrPlayClient({ mode: initialMode, challenge, challengeError, sna
               </>
             )}
             <div className="nr-chars" role="radiogroup" aria-label="Runner">
-              {CHARACTERS.map((c) => (
-                <button key={c.id} role="radio" aria-checked={prefs.character === c.id} className={`nr-char${prefs.character === c.id ? " on" : ""}`} onClick={() => updatePref("character", c.id)}>
+              {CHARACTERS.map((c) => {
+                const locked = Boolean(c.product && !owned.includes(c.product));
+                return (
+                <button
+                  key={c.id}
+                  role="radio"
+                  aria-checked={prefs.character === c.id}
+                  aria-disabled={locked}
+                  className={`nr-char${prefs.character === c.id ? " on" : ""}${locked ? " locked" : ""}`}
+                  onClick={() => (locked ? (window.location.href = "/premium") : updatePref("character", c.id))}
+                >
                   <span className="nr-swatch" aria-hidden="true">
                     {c.colors.map((col) => (
                       <i key={col} style={{ background: col }} />
                     ))}
                   </span>
                   {c.name}
+                  {locked && <small className="nr-lock">Premium</small>}
                 </button>
-              ))}
+                );
+              })}
             </div>
-            <p className="fineprint" style={{ margin: "4px 0 10px" }}>All three run exactly the same. Pick your style.</p>
+            <p className="fineprint" style={{ margin: "4px 0 10px" }}>Every runner moves exactly the same. Pick your style.</p>
             <ul className="legend" aria-label="How to play">
               <li><span className="dot" style={{ background: "#00C2FF", color: "#1B0B3A" }}>⇆</span>Swipe left or right to change lane</li>
               <li><span className="dot" style={{ background: "#7BE000", color: "#1B0B3A" }}>▲</span>Swipe up to jump potholes, puddles and cones</li>

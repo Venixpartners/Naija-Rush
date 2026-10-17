@@ -75,6 +75,10 @@ export async function createChallenge(input: CreateChallengeInput) {
     .from(schema.gameSessions)
     .where(and(eq(schema.gameSessions.id, input.runId), eq(schema.gameSessions.guestSessionId, input.guestId)));
   if (!run) throw new HttpError(404, "run_not_found");
+  if (run.userId) {
+    const [u] = await db().select({ status: schema.users.status }).from(schema.users).where(eq(schema.users.id, run.userId));
+    if (u && u.status !== "active") throw new HttpError(403, "account_restricted", "This account cannot create challenges.");
+  }
   if (run.mode === "endless") throw new HttpError(409, "run_not_competitive", "Endless runs are just for fun. Play the 60 second rush to challenge a friend.");
   if (run.status !== "valid") {
     throw new HttpError(409, "run_not_eligible", run.status === "flagged" ? "This run is under review." : "This run cannot be shared.");
@@ -118,6 +122,7 @@ export async function createChallenge(input: CreateChallengeInput) {
           sourceSessionId: run.id,
           creatorGuestId: input.guestId,
           parentChallengeId: run.challengeId,
+          campaignId: run.campaignId,
           displayName,
           targetScore: run.score ?? 0,
           expiresAt,

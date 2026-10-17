@@ -12,6 +12,12 @@ Checked 17 Oct 2026 against official documentation. Recheck before launch; platf
 
 Attribution: every shared link carries `?s=` (wa, ig, tt, sc, nt, cp, x). Arrivals are logged in `naijarush.referral_clicks`, with link preview crawlers marked as bots and excluded from metrics. Share sheet opens, target selections and hand offs are intent events only. Nothing is counted as published, because no platform API confirms publication in Phase 1.
 
-Not yet configured: Paystack (Phase 4), ad network (Phase 4), video storage and rendering (Phase 3), PostHog (events are already captured first party in `naijarush.analytics_events`).
+Payments: Paystack (transaction initialize and verify, plans for the monthly premium, subscription disable, webhooks signed with HMAC SHA512). Built and tested against a local stand in for Paystack's API; needs a Paystack account and test key to exercise for real.
+
+Email: Resend for sign in links (`MAIL_PROVIDER=resend`). Any provider with an HTTP API can replace it in `lib/mailer.ts`.
+
+Ads: provider neutral server side verification endpoint (`/api/ads/reward`). No network chosen; the reward is a 24 hour Neon Tunde outfit.
+
+Not configured: PostHog (events are captured first party in `naijarush.analytics_events`). Clips are recorded on the device, so no video storage is needed.
 
 Sources: developers.snap.com/snap-kit/creative-kit/web, developers.tiktok.com/doc/content-sharing-guidelines, developers.facebook.com/products/sharing-to-stories.
