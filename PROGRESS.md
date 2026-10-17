@@ -8,8 +8,10 @@
 - Phase 4: optional accounts by email link, data export and delete, Paystack premium (₦1,000 a month) and two outfits (₦300 each) behind the `payments` flag, server verified rewarded ads, sponsored and creator events with rules shown before play, reports queue, admin roles for admin, moderator and finance.
 - Tests: 37 unit and integration, 30 end to end checks.
 
+- Phase 5: CI on GitHub Actions (passing), daily data retention job, runbook and launch checklist.
+- Deployed to Vercel at https://naija-rush.vercel.app; production health check confirmed by the owner.
+
 ## Blocked on the owner
-- Database password (pooler connection string) and production secrets in Vercel.
 - Domain for `NEXT_PUBLIC_SITE_URL` (suggested: naijarush.venixpartners.com).
 - Resend account and verified sender for sign in emails.
 - Paystack account, test key, a monthly plan code, and sign off on prices.
